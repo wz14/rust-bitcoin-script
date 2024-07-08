@@ -72,3 +72,17 @@ fn test_deepthest() {
     let (x, y) = script.get_stack_status();
     assert_eq!([x, y], [0, 1]);
 }
+
+#[test]
+fn test_deepthest2() {
+    let script = script! (
+        {1}
+        OP_IF
+            { 120 }
+            OP_ADD
+        OP_ENDIF
+    );
+    script.compile();
+    let (x, y) = script.get_stack_status();
+    assert_eq!([x, y], [-1, 0]);
+}

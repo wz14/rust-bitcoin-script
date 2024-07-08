@@ -335,6 +335,7 @@ pub fn define_pushable(_: TokenStream) -> TokenStream {
                     let old_size = script.len();
                     script.push_slice(data);
                     self.size += script.len() - old_size;
+                    self.analyzer.handle_push_slice();
                     self
                 }
 
@@ -490,7 +491,7 @@ pub fn define_pushable(_: TokenStream) -> TokenStream {
                     }
                 }
 
-                pub fn handle_push_slice(mut self, data: &[u8]) {
+                pub fn handle_push_slice(&mut self) {
                     if !self.on {
                         return;
                     }
@@ -517,11 +518,14 @@ pub fn define_pushable(_: TokenStream) -> TokenStream {
                         },
                         OP_ENDIF => match self.if_stack.pop().unwrap() {
                             IfStackEle::IfFlow((i, j)) => {
-                                assert!(j == 0); // only_if_flow shouldn't change stack status
+                                assert_eq!(j, 0, "only_if_flow shouldn't change stack status");
                                 self.stack_change((i, j));
                             }
                             IfStackEle::ElseFlow((i, j, x, y)) => {
-                                assert!(j == y); // if_flow and else_flow should change stack in the same way
+                                assert_eq!(
+                                    j, y,
+                                    "if_flow and else_flow should change stack in the same way"
+                                );
                                 self.stack_change((min(i, x), j));
                             }
                         },
@@ -562,7 +566,7 @@ pub fn define_pushable(_: TokenStream) -> TokenStream {
                     if !self.on {
                         panic!("stack analzyer is not switched on yet")
                     }
-                    assert!(self.if_stack.is_empty());
+                    assert!(self.if_stack.is_empty(), "if stack is not empty");
                     (self.deepest_stack_accessed, self.stack_changed)
                 }
 
