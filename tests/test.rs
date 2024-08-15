@@ -1,5 +1,5 @@
 use bitcoin::opcodes::all::OP_ADD;
-use bitcoin_script::{script, Script, Chunker};
+use bitcoin_script::{script, Script};
 
 #[test]
 fn test_generic() {
